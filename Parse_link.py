@@ -34,6 +34,7 @@ def argparser():
     parser.add_argument('-i', '--input', dest='input_filename', default=None, required=True, help='Full path to input filename')
     parser.add_argument('-o', '--output', dest='output_filename', default=None, required=False, help='Full path to output filename')
     parser.add_argument('-u', '--url', dest='url', default='http://invhdp01:8080/sax/v1/media/', required=False, help='REST API')
+    parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
 
     args = parser.parse_args()
     return args
