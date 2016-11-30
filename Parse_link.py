@@ -10,7 +10,6 @@ import argparse
 
 output_file = None
 writer = None
-url = 'http://invhdp01:8080/sax/v1/media/'
 
 def getwriter(header):
     global output_file
@@ -33,7 +32,8 @@ def getmethod(line):
 def argparser():
     parser = argparse.ArgumentParser(description='Specify input and output filenames')
     parser.add_argument('-i', '--input', dest='input_filename', default=None, required=True, help='Full path to input filename')
-    parser.add_argument('-o', '--output', dest='output_filename', default=None, required=False,  help='Full path to output filename')
+    parser.add_argument('-o', '--output', dest='output_filename', default=None, required=False, help='Full path to output filename')
+    parser.add_argument('-u', '--url', dest='url', default='http://invhdp01:8080/sax/v1/media/', required=False, help='REST API')
 
     args = parser.parse_args()
     return args
@@ -43,8 +43,7 @@ def main():
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter='\t')
         for line in reader:
-            request = url+getmethod(line)+'?'+urllib.urlencode(line)
-    #        print request
+            request = params.url+getmethod(line)+'?'+urllib.urlencode(line)
             response = urllib2.urlopen(request).read()
             io = StringIO(response)
             parsed = json.load(io)
