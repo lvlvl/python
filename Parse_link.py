@@ -20,7 +20,7 @@ def getwriter(header):
         else:
             fname_out = params.output_filename
         output_file = open(fname_out,'w+')
-        writer = csv.DictWriter(output_file,fieldnames=header,delimiter='\t')
+        writer = csv.DictWriter(output_file,fieldnames=header,delimiter=params.delimeter)
         writer.writeheader()
     return writer
 # Choose method
@@ -35,7 +35,7 @@ def argparser():
     parser.add_argument('-o', '--output', dest='output_filename', default=None, required=False, help='Full path to output filename')
     parser.add_argument('-u', '--url', dest='url', default='http://invhdp01:8080/sax/v1/media/', required=False, help='REST API')
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
-
+    parser.add_argument('-d', '--delimeter', dest='delimeter', default='\t', required=False)
     args = parser.parse_args()
     return args
 
