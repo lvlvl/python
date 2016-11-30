@@ -25,8 +25,8 @@ def getwriter(header):
     return writer
 # Choose method
 def getmethod(line):
-    if 'method' in line:
-        return line['method']
+    if 'api_method' in line:
+        return line['api_method']
     return 'all'
 
 def argparser():
