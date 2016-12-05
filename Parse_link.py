@@ -36,6 +36,7 @@ def argparser():
     parser.add_argument('-u', '--url', dest='url', default='http://invhdp01:8080/sax/v1/media/', required=False, help='REST API')
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
     parser.add_argument('-d', '--delimeter', dest='delimeter', default='\t', required=False)
+    parser.add_argument('-b', '--bad', dest='bad', default=50, required=False, help='Number of bad rows allowed')
     args = parser.parse_args()
     return args
 
