@@ -46,6 +46,8 @@ def main():
         for line in reader:
             request = params.url+getmethod(line)+'?'+urllib.urlencode(line)
             response = urllib2.urlopen(request).read()
+            if params.verbose:
+                print(response)
             io = StringIO(response)
             parsed = json.load(io)
             writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
