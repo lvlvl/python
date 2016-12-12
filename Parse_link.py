@@ -42,13 +42,17 @@ def argparser():
 
 def main():
     fname = params.input_filename
+#    int c = 0
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter='\t')
         for line in reader:
             request = params.url+getmethod(line)+'?'+urllib.urlencode(line)
             response = urllib2.urlopen(request).read()
+            i = 1
             if params.verbose:
-                print(response)
+                print("Request "+str(i)+": "+request)
+                print("Response "+str(i)+": "+response)
+                i=i+1
             io = StringIO(response)
             parsed = json.load(io)
             writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
