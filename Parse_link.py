@@ -43,12 +43,12 @@ def argparser():
 def main():
     fname = params.input_filename
 #    int c = 0
+    i = 1
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter=params.delimeter)
         for line in reader:
             request = params.url+getmethod(line)+'?'+urllib.urlencode(line)
             response = urllib2.urlopen(request).read()
-            i = 1
             if params.verbose:
                 print("Request "+str(i)+": "+request)
                 print("Response "+str(i)+": "+response)
