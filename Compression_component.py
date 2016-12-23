@@ -4,6 +4,10 @@ import csv
 import itertools
 import argparse
 from sets import Set
+import pickle
+import gzip
+import tarfile
+import os
 
 
 def argparser():
@@ -18,11 +22,16 @@ def argparser():
     args = parser.parse_args()
     return args
 
-
 def analyze_file(fname):
     with open(fname,'rb') as f:
-        #Skip header
-        f.readline()
+        #Create file containing header information
+        output_headers = gzip.open(params.output_folder+'sample_compress.header.gz','w+')
+        #Number of lines in header from comand line parameters
+        h = int(params.skip)
+#        print(h)
+        output_headers.writelines([f.readline() for x in xrange(h)])
+        output_headers.close()
+
         reader = csv.DictReader(f,delimiter=params.delimeter)
         headers = reader.fieldnames
         #Define map
@@ -41,9 +50,20 @@ def analyze_file(fname):
         print('')
         print('Fieldnames with cardinality < 5 %:')
 
+        i = 0
+        compressed_columns = list()
         for fieldname in headers:
             if 100*len(unique_col_values[fieldname])/int(params.analysis) < 5:
+                compressed_columns.append(fieldname)
+                i = i+1
                 print('Fieldname: <' + fieldname + '> distinct count: ' + str(len(unique_col_values[fieldname]))+ '; cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) )
+        print('Compressed columns: ')
+        print(compressed_columns)
+        return compressed_columns
 
 params = argparser()
-analyze_file('/Users/Sergey/Work/sample_compress')
+#Set output_folder parameter if not defined
+if params.output_folder == None:
+    params.output_folder = params.input_folder
+
+analyze_file(params.input_folder+'sample_10')
