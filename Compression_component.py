@@ -61,9 +61,49 @@ def analyze_file(fname):
         print(compressed_columns)
         return compressed_columns
 
+def transform_file(fname):
+    with open(fname,'rb') as f:
+        #Skip headers from original file
+        h = int(params.skip)
+        [f.readline() for x in xrange(h)]
+
+        reader = csv.DictReader(f,delimiter='\t')
+        headers = reader.fieldnames
+        output_file = gzip.open(params.output_folder + 'sample_compress.data.gz','w+')
+        writer = csv.writer(output_file,delimiter='\t')
+
+        dictionaries = {}
+        counters = {}
+        for column in compressed_columns:
+            dictionaries[column]={}
+            counters[column]=0
+
+        for line in reader:
+            outrow = list()
+            for header in headers:
+    # fill dictionary
+                if header in compressed_columns:
+                    if line[header] not in dictionaries[header]:
+                        dictionaries[header][line[header]]=counters[header]
+                        counters[header] = counters[header]+1
+                    outrow.append(dictionaries[header][line[header]])
+                else:
+                    outrow.append(line[header])
+            writer.writerow(outrow)
+        output_file.close()
+        print dictionaries['Type']
+        print('Dictionaries created: ')
+        for header in compressed_columns:
+            dict_name = params.output_folder+'sample_compress.map.'+header+'.gz'
+            print(dict_name)
+            with open(dict_name, 'wb') as handle:
+                pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
+                handle.close()
+
 params = argparser()
 #Set output_folder parameter if not defined
 if params.output_folder == None:
     params.output_folder = params.input_folder
 
-analyze_file(params.input_folder+'sample_10')
+compressed_columns = analyze_file(params.input_folder+'sample_compress')
+transform_file(params.input_folder+'sample_compress')
