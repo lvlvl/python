@@ -67,10 +67,10 @@ def transform_file(fname):
         h = int(params.skip)
         [f.readline() for x in xrange(h)]
 
-        reader = csv.DictReader(f,delimiter='\t')
+        reader = csv.DictReader(f,delimiter=params.delimeter)
         headers = reader.fieldnames
         output_file = gzip.open(params.output_folder + 'sample_compress.data.gz','w+')
-        writer = csv.writer(output_file,delimiter='\t')
+        writer = csv.writer(output_file,delimiter=params.delimeter)
 
         dictionaries = {}
         counters = {}
