@@ -100,6 +100,10 @@ def transform_file(fname):
                 pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
                 handle.close()
 
+def make_tarfile(output_filename, source_dir):
+    with tarfile.open(output_filename, "w:gz") as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))
+
 params = argparser()
 #Set output_folder parameter if not defined
 if params.output_folder == None:
@@ -107,3 +111,5 @@ if params.output_folder == None:
 
 compressed_columns = analyze_file(params.input_folder+'sample_compress')
 transform_file(params.input_folder+'sample_compress')
+
+make_tarfile(params.output_folder + 'sample_compress.tar',params.output_folder)
