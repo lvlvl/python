@@ -24,15 +24,10 @@ def argparser():
 
 def analyze_file(fname):
     with open(fname,'rb') as f:
-        #Create file containing header information
-        output_headers = gzip.open(params.output_folder+'sample_compress.header.gz','w+')
-        #Number of lines in header from comand line parameters
-        h = int(params.skip)
-#        print(h)
-        output_headers.writelines([f.readline() for x in xrange(h)])
-        output_headers.close()
-
         reader = csv.DictReader(f,delimiter=params.delimeter)
+        #Skip headers
+        h = int(params.skip)
+        [f.readline() for x in xrange(h)]
         headers = reader.fieldnames
         #Define map
         unique_col_values = {}
@@ -60,6 +55,16 @@ def analyze_file(fname):
         print('Compressed columns: ')
         print(compressed_columns)
         return compressed_columns
+
+def make_header(fname):
+    with open(fname,'rb') as f:
+        #Create file containing header information
+        output_headers = gzip.open(params.output_folder+'sample_compress.header.gz','w+')
+        #Number of lines in header from comand line parameters
+        h = int(params.skip)
+#        print(h)
+        output_headers.writelines([f.readline() for x in xrange(h+1)])
+        output_headers.close()
 
 def transform_file(fname):
     with open(fname,'rb') as f:
@@ -110,6 +115,8 @@ if params.output_folder == None:
     params.output_folder = params.input_folder
 
 compressed_columns = analyze_file(params.input_folder+'sample_compress')
+
+make_header(params.input_folder+'sample_compress')
 transform_file(params.input_folder+'sample_compress')
 
 make_tarfile(params.output_folder + 'sample_compress.tar',params.output_folder)
