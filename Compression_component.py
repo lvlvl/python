@@ -8,7 +8,7 @@ import pickle
 import gzip
 import tarfile
 import os
-
+from subprocess import check_call
 
 def argparser():
     parser = argparse.ArgumentParser(description='Specify parameters')
@@ -21,6 +21,9 @@ def argparser():
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
     args = parser.parse_args()
     return args
+
+def gZipFile(fullFilePath):
+    check_call(['gzip', fullFilePath])
 
 def analyze_file(fname):
     with open(fname,'rb') as f:
@@ -99,11 +102,12 @@ def transform_file(fname):
         print dictionaries['Type']
         print('Dictionaries created: ')
         for header in compressed_columns:
-            dict_name = params.output_folder+'sample_compress.map.'+header+'.gz'
+            dict_name = params.output_folder+'sample_compress.map.'+header
             print(dict_name)
             with open(dict_name, 'wb') as handle:
                 pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
                 handle.close()
+                gZipFile(dict_name)
 
 def make_tarfile(output_filename, source_dir):
     with tarfile.open(output_filename, "w:gz") as tar:
