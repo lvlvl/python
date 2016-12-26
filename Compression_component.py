@@ -15,7 +15,7 @@ def argparser():
     parser.add_argument('-i', '--input', dest='input_folder', default=None, required=True, help='Full path to input folder to read from')
     parser.add_argument('-o', '--output', dest='output_folder', default=None, required=False, help='Full path to output folder to write to')
     parser.add_argument('-t', '--temp', dest='temp_dir', default='/tmp/dcc', required=False, help='Full path to location for temporary file creation')
-    parser.add_argument('-d', '--delimeter', dest='delimeter', default='\t', required=False, help='Delimeter')
+    parser.add_argument('-d', '--delimiter', dest='delimiter', default='\t', required=False, help='Delimiter')
     parser.add_argument('-s', '--skip', dest='skip', default=1, required=False, help='Number of header rows to skip prior to sorting data')
     parser.add_argument('-a', '--analysis', dest='analysis', default=50000, required=False, help='Number of rows for cardinality calculation')
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
@@ -27,7 +27,7 @@ def gZipFile(fullFilePath):
 
 def analyze_file(fname):
     with open(fname,'rb') as f:
-        reader = csv.DictReader(f,delimiter=params.delimeter)
+        reader = csv.DictReader(f,delimiter=params.delimiter)
         #Skip headers
         h = int(params.skip)
         [f.readline() for x in xrange(h)]
@@ -75,10 +75,10 @@ def transform_file(fname):
         h = int(params.skip)
         [f.readline() for x in xrange(h)]
 
-        reader = csv.DictReader(f,delimiter=params.delimeter)
+        reader = csv.DictReader(f,delimiter=params.delimiter)
         headers = reader.fieldnames
         output_file = gzip.open(params.output_folder + 'sample_compress.data.gz','w+')
-        writer = csv.writer(output_file,delimiter=params.delimeter)
+        writer = csv.writer(output_file,delimiter=params.delimiter)
 
         dictionaries = {}
         counters = {}
