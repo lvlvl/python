@@ -146,12 +146,13 @@ if params.output_folder == None:
     params.output_folder = params.input_folder
 
 #Get only files from input directory
-onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f))]
+onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f)) and not f.startswith('.')]
 if params.verbose:
     print('Number of files in input directory: ' + str(len(onlyfiles)))
     print('')
     print('Files: ')
     print(onlyfiles)
+
 
 i=0
 #Process files one by one from input directory
