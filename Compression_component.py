@@ -29,10 +29,11 @@ def gZipFile(fullFilePath):
     check_call(['gzip', fullFilePath])
 
 def analyze_file(fname):
-    print('')
-    print('==============')
-    print('Analyzing file ' + fname)
-    print('==============')
+    if params.verbose:
+        print('')
+        print('==============')
+        print('Analyzing file ' + fname)
+        print('==============')
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter=params.delimiter)
         #Skip headers
@@ -49,21 +50,22 @@ def analyze_file(fname):
             for fieldname in headers:
                 value = row[fieldname]
                 unique_col_values[fieldname].add(value)
-        print('Fieldnames in file:')
-        print('-------------------')
-        for fieldname in headers:
-            print('Fieldname: <' + fieldname + '> distinct count: ' + str(len(unique_col_values[fieldname]))+ '; cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) )
-
-        print('----------------------------------')
-        print('Fieldnames with cardinality < 5 %:')
-        print('----------------------------------')
+        if params.verbose:
+            print('Fieldnames in file:')
+            print('-------------------')
+            for fieldname in headers:
+                print('Fieldname: <' + fieldname + '> distinct count: ' + str(len(unique_col_values[fieldname]))+ '; cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) )
+            print('----------------------------------')
+            print('Fieldnames with cardinality < 5 %:')
+            print('----------------------------------')
         i = 0
         compressed_columns = list()
         for fieldname in headers:
             if 100*len(unique_col_values[fieldname])/int(params.analysis) < 5:
                 compressed_columns.append(fieldname)
                 i = i+1
-                print('Fieldname: <' + fieldname + '> distinct count: ' + str(len(unique_col_values[fieldname]))+ '; cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) )
+                if params.verbose:
+                    print('Fieldname: <' + fieldname + '> distinct count: ' + str(len(unique_col_values[fieldname]))+ '; cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) )
 #        DEBUG
 #        print('Compressed columns: ')
 #        print(compressed_columns)
@@ -75,6 +77,7 @@ def make_header(fname):
         output_headers = gzip.open(params.temp_folder+'sample_compress.header.gz','w+')
         #Number of lines in header from comand line parameters
         h = int(params.skip)
+#       DEBUG
 #        print(h)
         output_headers.writelines([f.readline() for x in xrange(h+1)])
         output_headers.close()
@@ -109,12 +112,14 @@ def transform_file(fname):
                     outrow.append(line[header])
             writer.writerow(outrow)
         output_file.close()
-        print('---------------------')
-        print('Dictionaries created: ')
-        print('---------------------')
+        if params.verbose:
+            print('---------------------')
+            print('Dictionaries created: ')
+            print('---------------------')
         for header in compressed_columns:
             dict_name = params.temp_folder+'sample_compress.map.'+header
-            print(dict_name)
+            if params.verbose:
+                print(dict_name)
             with open(dict_name, 'wb') as handle:
                 pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
                 handle.close()
@@ -142,21 +147,27 @@ if params.output_folder == None:
 
 #Get only files from input directory
 onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f))]
-print('Number of files in input directory: ' + str(len(onlyfiles)))
-print('')
-print('Files: ')
-print(onlyfiles)
+if params.verbose:
+    print('Number of files in input directory: ' + str(len(onlyfiles)))
+    print('')
+    print('Files: ')
+    print(onlyfiles)
 
 i=0
 #Process files one by one from input directory
 while i < len(onlyfiles):
 #    DEBUG
 #    print('==========')
-#    print('Processing file: ')
-#    print(onlyfiles[i])
+    if params.verbose == False:
+        print('Processing file: ')
+        print(onlyfiles[i])
+        print('----------------')
     compressed_columns = analyze_file(params.input_folder+onlyfiles[i])
     make_header(params.input_folder+onlyfiles[i])
     transform_file(params.input_folder+onlyfiles[i])
     make_tarfile(params.output_folder + onlyfiles[i] + '.tar',params.temp_folder)
     delete_temp_files(params.temp_folder)
     i=i+1
+
+print('Processed files: ' + str(i))
+print('DONE.')
