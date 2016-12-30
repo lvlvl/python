@@ -17,6 +17,12 @@ writer_rejected = None
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+if sys.version_info < (2, 7):
+    def __writeheader(self):
+        header = dict(zip(self.fieldnames, self.fieldnames))
+        self.writerow(header)
+        csv.DictWriter.writeheader = __writeheader
+
 def getwriter(header):
     global output_file
     global writer
