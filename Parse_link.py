@@ -38,6 +38,7 @@ def getwriter_rejected(header):
         rejected_file = open(fname_out,'w+')
         writer_rejected = csv.DictWriter(rejected_file,fieldnames=header,delimiter=params.delimeter)
         writer_rejected.writeheader()
+        writer_rejected.close()
     return writer_rejected
 
 # Choose method
@@ -67,8 +68,9 @@ def validation():
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter=params.delimeter)
         for line in reader:
-            print(line)
-            if (not line["urlip"]) and (not line["ua"]):
+#            DEBUG
+#            print(line)
+            if (not line["urlip"]): # and (not line["ua"]):
                 br = br+1
                 writer_rejected = getwriter_rejected(reader.fieldnames)
                 writer_rejected.writerow(dict(line.items()))
@@ -79,7 +81,6 @@ def validation():
                 print("File contains many errors.")
                 flag = False
                 break
-        rejected_file.close()
         print("Number of bad rows: "+str(br))
         print("Number of lines validated: "+str(c))
         print("")
