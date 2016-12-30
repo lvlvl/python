@@ -54,8 +54,8 @@ def argparser():
     parser.add_argument('-u', '--url', dest='url', default='http://invhdp01:8080/sax/v1/media/', required=False, help='REST API')
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
     parser.add_argument('-d', '--delimeter', dest='delimeter', default='\t', required=False)
-    parser.add_argument('-b', '--bad', dest='bad', default=2, required=False, help='Number of bad rows allowed')
-    parser.add_argument('-s', '--sample', dest='sample', default=5, required=False, help='Size of sample for prevalidation')
+    parser.add_argument('-b', '--bad', dest='bad', default=100, required=False, help='Number of bad rows allowed')
+    parser.add_argument('-s', '--sample', dest='sample', default=1000, required=False, help='Size of sample for prevalidation')
     args = parser.parse_args()
     return args
 
@@ -88,15 +88,18 @@ def validation():
 def main():
     fname = params.input_filename
     i = 1
+    j = 1
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter=params.delimeter)
         for line in reader:
             request = params.url+getmethod(line)+'?'+urllib.urlencode(line)
-            response = urllib2.urlopen(request).read()
             if params.verbose:
                 print("Request "+str(i)+": "+request)
-                print("Response "+str(i)+": "+response)
-                i=i+1
+                i =i+1
+            response = urllib2.urlopen(request).read()
+            if params.verbose:
+                print("Response "+str(j)+": "+response)
+                j=j+1
             io = StringIO(response)
             parsed = json.load(io)
             writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
