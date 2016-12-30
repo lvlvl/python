@@ -59,7 +59,7 @@ def argparser():
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
     parser.add_argument('-d', '--delimeter', dest='delimeter', default='\t', required=False)
     parser.add_argument('-b', '--bad', dest='bad', default=100, required=False, help='Number of bad rows allowed')
-    parser.add_argument('-s', '--sample', dest='sample', default=1000, required=False, help='Size of sample for prevalidation')
+    parser.add_argument('-s', '--sample', dest='sample', default=1000, required=False, help='Size of sample for pre-validation')
     args = parser.parse_args()
     return args
 
@@ -100,7 +100,8 @@ def main():
 #        print(headers)
         for line in reader:
             request = params.url+getmethod(line)+'?'
-            #If we don't have ua column
+            #If we don't have ua column, we need to pass empty ua to REST service
+            #otherwise it will return incorrect response
             if not 'ua' in headers:
                 request = request + 'ua=&'
             request = request  + urllib.urlencode(line)
@@ -115,7 +116,8 @@ def main():
             parsed = json.load(io)
             writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
             writer.writerow(dict(line.items()+parsed.items()))
-
+    print("Output file has been created.")
+    print("Exiting script.")
     output_file.close()
 
 params = argparser()
@@ -124,6 +126,6 @@ if v == True:
     print("Validation passed!")
 else:
     print("Validation failed!")
-    sys.exit("Exiting script!")
+    sys.exit("Exiting script.")
 
 main()
