@@ -14,6 +14,9 @@ rejected_file = None
 writer = None
 writer_rejected = None
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 def getwriter(header):
     global output_file
     global writer
