@@ -114,14 +114,25 @@ def main():
             if params.verbose:
                 print("Request "+str(i)+": "+request)
                 i =i+1
-            response = urllib2.urlopen(request).read()
-            if params.verbose:
-                print("Response "+str(j)+": "+response)
-                j=j+1
-            io = StringIO(response)
-            parsed = json.load(io)
-            writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
-            writer.writerow(dict(line.items()+parsed.items()))
+            t = 9 # Number of retry attempts
+            while t >= 0:
+                success = False
+                try:
+                    response = urllib2.urlopen(request).read()
+                    if params.verbose:
+                        print("Response "+str(j)+": "+response)
+                        j=j+1
+                    io = StringIO(response)
+                    parsed = json.load(io)
+                    writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
+                    writer.writerow(dict(line.items()+parsed.items()))
+                    success = True
+                except Exception as e:
+                    print(e)
+                    sleep(5) #Sleep for 5 seconds
+                t=t-1
+                if success:
+                    t = -100 #Condition to exit from while
     print("Output file has been created.")
     print("Exiting script.")
     output_file.close()
