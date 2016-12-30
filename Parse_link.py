@@ -92,8 +92,15 @@ def main():
     j = 1
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter=params.delimeter)
+        headers = reader.fieldnames
+#        DEBUG
+#        print(headers)
         for line in reader:
-            request = params.url+getmethod(line)+'?'+urllib.urlencode(line)
+            request = params.url+getmethod(line)+'?'
+            #If we don't have ua column
+            if not 'ua' in headers:
+                request = request + 'ua=&'
+            request = request  + urllib.urlencode(line)
             if params.verbose:
                 print("Request "+str(i)+": "+request)
                 i =i+1
@@ -105,6 +112,7 @@ def main():
             parsed = json.load(io)
             writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
             writer.writerow(dict(line.items()+parsed.items()))
+
     output_file.close()
 
 params = argparser()
