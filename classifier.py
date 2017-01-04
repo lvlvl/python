@@ -8,6 +8,7 @@ import StringIO
 from StringIO import StringIO
 import argparse
 import sys
+import time
 
 writer_cache = dict()
 file_cache = dict()
