@@ -145,7 +145,6 @@ def main():
                     t = -100 #Condition to exit from while
     print("Output file has been created.")
     print("Exiting script.")
-    output_file.close()
 
 params = argparser()
 v = validation()
