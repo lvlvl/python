@@ -9,10 +9,8 @@ from StringIO import StringIO
 import argparse
 import sys
 
-output_file = None
-rejected_file = None
-writer = None
-writer_rejected = None
+writer_cache = dict()
+file_cache = dict()
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -23,32 +21,19 @@ if sys.version_info < (2, 7):
         self.writerow(header)
         csv.DictWriter.writeheader = __writeheader
 
-def getwriter(header):
-    global output_file
-    global writer
-    if writer == None:
-        if not params.output_filename:
-            fname_out = params.input_filename+'.out'
-        else:
-            fname_out = params.output_filename
+def getwriter(header, fname_out, delimiter):
+    global writer_cache
+    global file_cache
+    if not fname_out in writer_cache:
         output_file = open(fname_out,'w+')
-        writer = csv.DictWriter(output_file,fieldnames=header,delimiter=params.delimeter)
-        writer.writeheader()
-    return writer
-
-def getwriter_rejected(header):
-    global rejected_file
-    global writer_rejected
-    if writer_rejected == None:
-        if not params.rejected_filename:
-            fname_out = params.input_filename+'.rejected'
+        writer = csv.DictWriter(output_file,fieldnames=header,delimiter=delimiter)
+        if sys.version_info < (2, 7):
+            __writeheader(writer)
         else:
-            fname_out = params.rejected_filename
-        rejected_file = open(fname_out,'w+')
-        writer_rejected = csv.DictWriter(rejected_file,fieldnames=header,delimiter=params.delimeter)
-        writer_rejected.writeheader()
-        writer_rejected.close()
-    return writer_rejected
+            writer.writeheader()
+        writer_cache[fname_out]=writer
+        file_cache[fname_out]=output_file
+    return writer_cache[fname_out]
 
 # Choose method
 def getmethod(line):
@@ -63,7 +48,7 @@ def argparser():
     parser.add_argument('-r', '--rejected', dest='rejected_filename', default=None, required=False, help='Full path to rejected filename')
     parser.add_argument('-u', '--url', dest='url', default='http://invhdp01:8080/sax/v1/media/', required=False, help='REST API')
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
-    parser.add_argument('-d', '--delimeter', dest='delimeter', default='\t', required=False)
+    parser.add_argument('-d', '--delimiter', dest='delimiter', default='\t', required=False)
     parser.add_argument('-b', '--bad', dest='bad', default=100, required=False, help='Number of bad rows allowed')
     parser.add_argument('-s', '--sample', dest='sample', default=1000, required=False, help='Size of sample for pre-validation')
     args = parser.parse_args()
@@ -74,15 +59,20 @@ def validation():
     c = 0
     br = 0
     flag = True
+    fname_out = None
+    if not params.output_filename:
+        fname_out = params.input_filename + '.rejected'
+    else:
+        fname_out = params.output_filename + '.rejected'
     with open(fname,'rb') as f:
-        reader = csv.DictReader(f,delimiter=params.delimeter)
+        reader = csv.DictReader(f,delimiter=params.delimiter)
         for line in reader:
 #            DEBUG
 #            print(line)
             if (not line["urlip"]): # and (not line["ua"]):
                 br = br+1
-                writer_rejected = getwriter_rejected(reader.fieldnames)
-                writer_rejected.writerow(dict(line.items()))
+                writer = getwriter(reader.fieldnames,fname_out,params.delimiter)
+                writer.writerow(dict(line.items()))
             else:
                 pass
             c = c+1
@@ -99,8 +89,9 @@ def main():
     fname = params.input_filename
     i = 1
     j = 1
+    fname_out = None
     with open(fname,'rb') as f:
-        reader = csv.DictReader(f,delimiter=params.delimeter)
+        reader = csv.DictReader(f,delimiter=params.delimiter)
         headers = reader.fieldnames
 #        DEBUG
 #        print(headers)
@@ -124,7 +115,16 @@ def main():
                         j=j+1
                     io = StringIO(response)
                     parsed = json.load(io)
-                    writer = getwriter(reader.fieldnames+sorted(parsed.keys()))
+
+                    wr_output = 'output'
+                    writer = getwriter(reader.fieldnames+sorted(parsed.keys()),fname_out,params.delimiter)
+#                    DEBUG
+#                    print ('Headers: ' + str(reader.fieldnames+sorted(parsed.keys())))
+#                    print('Line: ' + str(line))
+#                    print('')
+#                    print('Line item: ' + str(line.items()))
+#                    print('')
+#                    print('Parsed item: ' + str(parsed.items()))
                     writer.writerow(dict(line.items()+parsed.items()))
                     success = True
                 except Exception as e:
@@ -146,3 +146,5 @@ else:
     sys.exit("Exiting script.")
 
 main()
+for key, value in file_cache.iteritems():
+    value.close()
