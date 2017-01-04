@@ -131,7 +131,10 @@ def main():
                     success = True
                 except Exception as e:
                     print(e)
-                    sleep(5) #Sleep for 5 seconds
+                    if sys.version_info < (2, 7):
+                        time.sleep(5) #Sleep for 5 seconds
+                    else:
+                        sleep(5) #Sleep for 5 seconds
                 t=t-1
                 if success:
                     t = -100 #Condition to exit from while
