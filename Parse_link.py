@@ -76,9 +76,11 @@ def validation():
             else:
                 pass
             c = c+1
-            if (br >= params.bad) or (c > params.sample):
+            if (br >= params.bad):
                 print("File contains many errors.")
                 flag = False
+                break
+            if c > params.sample:
                 break
         print("Number of bad rows: "+str(br))
         print("Number of lines validated: "+str(c))
