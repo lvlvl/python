@@ -92,6 +92,10 @@ def main():
     i = 1
     j = 1
     fname_out = None
+    if not params.output_filename:
+        fname_out = params.input_filename + '.out'
+    else:
+        fname_out = params.output_filename + '.out'
     with open(fname,'rb') as f:
         reader = csv.DictReader(f,delimiter=params.delimiter)
         headers = reader.fieldnames
