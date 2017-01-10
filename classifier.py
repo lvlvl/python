@@ -9,6 +9,7 @@ from StringIO import StringIO
 import argparse
 import sys
 import time
+import multiprocessing
 
 writer_cache = dict()
 file_cache = dict()
@@ -52,6 +53,10 @@ def argparser():
     parser.add_argument('-d', '--delimiter', dest='delimiter', default='\t', required=False)
     parser.add_argument('-b', '--bad', dest='bad', default=100, required=False, help='Number of bad rows allowed')
     parser.add_argument('-s', '--sample', dest='sample', default=1000, required=False, help='Size of sample for pre-validation')
+    parser.add_argument('-p','--numProcessors', required=False, type=int,
+    					default=multiprocessing.cpu_count(),
+    					help='Number of processors to use. ' + \
+    					"Default for this machine is %d" % (multiprocessing.cpu_count(),) )
     args = parser.parse_args()
     return args
 
@@ -145,6 +150,7 @@ def main():
                     t = -100 #Condition to exit from while
     print("Output file has been created.")
     print("Exiting script.")
+    return fname_out
 
 params = argparser()
 v = validation()
