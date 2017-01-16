@@ -23,7 +23,8 @@ def argparser():
     args = parser.parse_args()
     return args
 
-
+def gUnZipFIle(fullFIlePath):
+    check_call(['gunzip', fullFilePath])
 
 
 
