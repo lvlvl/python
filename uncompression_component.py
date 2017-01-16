@@ -22,3 +22,21 @@ def argparser():
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
     args = parser.parse_args()
     return args
+
+
+
+
+
+params = argparser()
+#Set output_folder parameter if not defined
+if params.output_folder == None:
+    params.output_folder = params.input_folder
+
+#Get only files from input directory
+onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f)) and not f.startswith('.')]
+
+if params.verbose:
+    print('Number of files in input directory: ' + str(len(onlyfiles)))
+    print('')
+    print('Files: ')
+    print(onlyfiles)
