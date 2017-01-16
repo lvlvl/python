@@ -72,9 +72,10 @@ def analyze_file(fname):
         return compressed_columns
 
 def make_header(fname):
-    with open(fname,'rb') as f:
+    input_fname = params.input_folder + fname
+    with open(input_fname,'rb') as f:
         #Create file containing header information
-        output_headers = gzip.open(params.temp_folder+'sample_compress.header.gz','w+')
+        output_headers = gzip.open(params.temp_folder + fname + '.header.gz','w+')
         #Number of lines in header from comand line parameters
         h = int(params.skip)
 #       DEBUG
@@ -83,14 +84,15 @@ def make_header(fname):
         output_headers.close()
 
 def transform_file(fname):
-    with open(fname,'rb') as f:
+    input_fname = params.input_folder + fname
+    with open(input_fname,'rb') as f:
         #Skip headers from original file
         h = int(params.skip)
         [f.readline() for x in xrange(h)]
 
         reader = csv.DictReader(f,delimiter=params.delimiter)
         headers = reader.fieldnames
-        output_file = gzip.open(params.temp_folder + 'sample_compress.data.gz','w+')
+        output_file = gzip.open(params.temp_folder + fname + '.data.gz','w+')
         writer = csv.writer(output_file,delimiter=params.delimiter)
 
         dictionaries = {}
@@ -117,7 +119,7 @@ def transform_file(fname):
             print('Dictionaries created: ')
             print('---------------------')
         for header in compressed_columns:
-            dict_name = params.temp_folder+'sample_compress.map.'+header
+            dict_name = params.temp_folder + fname + '.map.'+header
             if params.verbose:
                 print(dict_name)
             with open(dict_name, 'wb') as handle:
@@ -147,6 +149,7 @@ if params.output_folder == None:
 
 #Get only files from input directory
 onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f)) and not f.startswith('.')]
+
 if params.verbose:
     print('Number of files in input directory: ' + str(len(onlyfiles)))
     print('')
@@ -164,8 +167,8 @@ while i < len(onlyfiles):
         print(onlyfiles[i])
         print('----------------')
     compressed_columns = analyze_file(params.input_folder+onlyfiles[i])
-    make_header(params.input_folder+onlyfiles[i])
-    transform_file(params.input_folder+onlyfiles[i])
+    make_header(onlyfiles[i])
+    transform_file(onlyfiles[i])
     make_tarfile(params.output_folder + onlyfiles[i] + '.tar',params.temp_folder)
     delete_temp_files(params.temp_folder)
     i=i+1
