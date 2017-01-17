@@ -32,53 +32,56 @@ def gUnZipFIle(fullFIlePath):
     zipFile.close()
     unCompressedFile.close()
 
+def transform_file(temp_folder, output_fname):
+    os.chdir(temp_folder)
+    for file in glob.glob("*.header"):
+        header = file
+        print("Header file found: " + header)
 
+    for file in glob.glob("*.data"):
+        data_file = file
+        print("Data file found: " + data_file)
 
-def transform_file(input_folder):
-    os.chdir(input_folder)
-    for file in glob.glob("*.data.*"):
-        print("Data file found: " + file)
+    maps = []
+    column_dictionary = dict()
+    i = 0
+    for file in glob.glob("*.map.*"):
+        maps.append(file,)
+#        print file
+    print('')
+    while i < len(maps):
+        print("Map file found: " + maps[i])
+        column_dictionary[maps[i].split('.')[-1]] = pickle.load(open(temp_folder+maps[i],'rb'))
+        i = i+1
+#    DEBUG
+#    print("Fieldnames: " + str(fieldnames))
+#    print("")
+#    print("Column_dictionary: " + str(column_dictionary))
 
-#    with open(input_fname,'rb') as f:
-#        #Skip headers from original file
-#        h = int(params.skip)
-#        [f.readline() for x in xrange(h)]
-#
-#        reader = csv.DictReader(f,delimiter=params.delimiter)
-#        headers = reader.fieldnames
-#        output_file = gzip.open(params.temp_folder + fname + '.data.gz','w+')
-#        writer = csv.writer(output_file,delimiter=params.delimiter)
-#
-#        for column in compressed_columns:
-#            dictionaries[column]={}
-#            counters[column]=0
-#
-#        for line in reader:
-#            outrow = list()
-#            for header in headers:
-#    # fill dictionary
-#                if header in compressed_columns:
-#                    if line[header] not in dictionaries[header]:
-#                        dictionaries[header][line[header]]=counters[header]
-#                        counters[header] = counters[header]+1
-#                    outrow.append(dictionaries[header][line[header]])
-#                else:
-#                    outrow.append(line[header])
-#            writer.writerow(outrow)
-#        output_file.close()
-#        if params.verbose:
-#            print('---------------------')
-#            print('Dictionaries created: ')
-#            print('---------------------')
-#        for header in compressed_columns:
-#            dict_name = params.temp_folder + fname + '.map.'+header
-#            if params.verbose:
-#                print(dict_name)
-#            with open(dict_name, 'wb') as handle:
-#                pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
-#                handle.close()
-#                gZipFile(dict_name)
-
+    with open(output_fname,'w+') as fo:
+        fieldnames_str = None
+        with open(header,'rb') as f:
+            for line in f:
+    #                print(line)
+                fieldnames_str = line
+                fo.write(line)
+        with open(data_file,'rb') as f:
+            fieldnames = fieldnames_str[:-1].split(params.delimiter)
+            reader = csv.DictReader(f,delimiter=params.delimiter,fieldnames=fieldnames)
+            writer = csv.writer(fo,delimiter=params.delimiter)
+            for line in reader:
+#                print("Line: " +str(line))
+                result = []
+                for field in fieldnames:
+                    v = None
+                    if field in column_dictionary:
+#                        DEBUG
+#                        print("Field: " + str(field))
+#                        print("column_dictionary[field]: " + str(column_dictionary[field]))
+                        v = column_dictionary[field][int(line[field])]
+                        line[field] = v
+                    result.append(line[field])
+                writer.writerow(result)
 
 params = argparser()
 #Set output_folder parameter if not defined
@@ -93,6 +96,6 @@ if params.verbose:
     print('')
     print('Files: ')
     print(onlyfiles)
+    print('')
 
-
-transform_file('/Users/Sergey/Work/output/sample_compress/')
+transform_file('/Users/Sergey/Work/temp/','/Users/Sergey/Work/temp/output/sample_2.txt.csv')
