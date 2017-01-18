@@ -24,18 +24,44 @@ def argparser():
     args = parser.parse_args()
     return args
 
-def gUnZipFIle(fullFIlePath):
-    zipFile = gzip.open(fullFIlePath,"rb")
-    unCompressedFile = open('/Users/Sergey/Work/output/sample_compress/sample_compress.data',"wb")
+def untar_file(fullFilePath, temp_folder):
+    tar = tarfile.open(fullFilePath)
+    tar.extractall(path=temp_folder)
+    tar.close()
+
+def gunzip_file(fullFilePath):
+    zipFile = gzip.open(fullFilePath,"rb")
+#    DEBUG
+#    print("FullFilePath: "+ fullFilePath)
+#    print("FullFilePath for output file: " + fullFilePath[:-3])
+    unCompressedFile = open(fullFilePath[:-3],"wb")
     decoded = zipFile.read()
     unCompressedFile.write(decoded)
     zipFile.close()
     unCompressedFile.close()
+    #Remove .gz file
+    try:
+        if os.path.isfile(fullFilePath):
+            os.unlink(fullFilePath)
+        #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+    except Exception as e:
+        print(e)
 
-def transform_file(temp_folder, output_fname):
+def delete_temp_files(folder):
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+        except Exception as e:
+            print(e)
+
+def decompress_file(temp_folder, output_fname):
     os.chdir(temp_folder)
     for file in glob.glob("*.header"):
         header = file
+        print('')
         print("Header file found: " + header)
 
     for file in glob.glob("*.data"):
@@ -82,11 +108,12 @@ def transform_file(temp_folder, output_fname):
                         line[field] = v
                     result.append(line[field])
                 writer.writerow(result)
+    return(output_fname)
 
 params = argparser()
 #Set output_folder parameter if not defined
 if params.output_folder == None:
-    params.output_folder = params.input_folder
+    params.output_folder = params.temp_folder
 
 #Get only files from input directory
 onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f)) and not f.startswith('.')]
@@ -98,4 +125,37 @@ if params.verbose:
     print(onlyfiles)
     print('')
 
-transform_file('/Users/Sergey/Work/temp/','/Users/Sergey/Work/temp/output/sample_2.txt.csv')
+i=0
+#Process files one by one from input directory
+while i < len(onlyfiles):
+    print('Processing file: ')
+    print(onlyfiles[i])
+    print('----------------')
+
+    untar_file(params.input_folder+onlyfiles[i], params.temp_folder)
+#    untar_dir = params.temp_folder
+    os.chdir(params.temp_folder)
+    gz_files = []
+    for file in glob.glob("*.gz"):
+        gz_files.append(file,)
+#        print file
+    print('')
+#    DEBUG
+#    print("GZ_files: " + str(gz_files))
+    j = 0
+    while j < len(gz_files):
+        if params.verbose:
+            print("GZ file found: " + gz_files[j])
+            print("Gunzip file path: " + params.temp_folder + gz_files[j])
+        gunzip_file(params.temp_folder + gz_files[j])
+        j = j+1
+    a = decompress_file(params.temp_folder, onlyfiles[i][:-4])
+    print('')
+    print("Output_fname: " + onlyfiles[i][:-4])
+#    print('')
+#    print("Result: " + a)
+#    Copy output csv file to output directory
+    copyfile(a,params.output_folder+a)
+    delete_temp_files(params.temp_folder)
+#    break
+    i = i+1
