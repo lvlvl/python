@@ -150,6 +150,20 @@ params = argparser()
 if params.output_folder == None:
     params.output_folder = params.input_folder
 
+#Check wether temp_folder exists
+if  not os.path.exists(params.temp_folder):
+#    print(os.path.exists(params.output_folder))
+    print("Temp directory doesn't exist.")
+    print("Exiting script.")
+    exit()
+
+#Check wether output_folder exists
+if  not os.path.exists(params.output_folder):
+#    print(os.path.exists(params.output_folder))
+    print("Output directory doesn't exist.")
+    print("Exiting script.")
+    exit()
+
 #Get only files from input directory
 onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f)) and not f.startswith('.')]
 
