@@ -111,9 +111,24 @@ def decompress_file(temp_folder, output_fname):
     return(output_fname)
 
 params = argparser()
+
 #Set output_folder parameter if not defined
 if params.output_folder == None:
-    params.output_folder = params.temp_folder
+    params.output_folder = params.input_folder
+
+#Check wether temp_folder exists
+if  not os.path.exists(params.temp_folder):
+#    print(os.path.exists(params.output_folder))
+    print("Temp directory doesn't exist.")
+    print("Exiting script.")
+    exit()
+
+#Check wether output_folder exists
+if  not os.path.exists(params.output_folder):
+#    print(os.path.exists(params.output_folder))
+    print("Output directory doesn't exist.")
+    print("Exiting script.")
+    exit()
 
 #Get only files from input directory
 onlyfiles = [f for f in listdir(params.input_folder) if isfile(join(params.input_folder, f)) and not f.startswith('.')]
@@ -152,10 +167,11 @@ while i < len(onlyfiles):
     a = decompress_file(params.temp_folder, onlyfiles[i][:-4])
     print('')
     print("Output_fname: " + onlyfiles[i][:-4])
-#    print('')
+    print('')
 #    print("Result: " + a)
 #    Copy output csv file to output directory
     copyfile(a,params.output_folder+a)
     delete_temp_files(params.temp_folder)
 #    break
     i = i+1
+print("Done.")
