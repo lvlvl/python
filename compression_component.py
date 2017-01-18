@@ -22,6 +22,7 @@ def argparser():
     parser.add_argument('-s', '--skip', dest='skip', default=1, required=False, help='Number of header rows to skip prior to sorting data')
     parser.add_argument('-a', '--analysis', dest='analysis', default=50000, required=False, help='Number of rows for cardinality calculation')
     parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', required=False)
+    parser.add_argument('-c', '--cardinality', dest='card_treshold', default=5, required=False, type=int, help='Cardinality treshold')
     args = parser.parse_args()
     return args
 
@@ -56,12 +57,12 @@ def analyze_file(fname):
             for fieldname in headers:
                 print('Fieldname: <' + fieldname + '> distinct count: ' + str(len(unique_col_values[fieldname]))+ '; cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) )
             print('----------------------------------')
-            print('Fieldnames with cardinality < 5 %:')
+            print('Fieldnames with cardinality < ' + str(params.card_treshold) + ' %:')
             print('----------------------------------')
         i = 0
         compressed_columns = list()
         for fieldname in headers:
-            if 100*len(unique_col_values[fieldname])/int(params.analysis) < 5:
+            if 100*len(unique_col_values[fieldname])/int(params.analysis) < params.card_treshold:
                 compressed_columns.append(fieldname)
                 i = i+1
                 if params.verbose:
