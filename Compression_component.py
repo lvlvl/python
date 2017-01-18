@@ -123,7 +123,10 @@ def transform_file(fname):
             if params.verbose:
                 print(dict_name)
             with open(dict_name, 'wb') as handle:
-                pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
+                d = dictionaries[header]
+                d = dict((v,k) for k,v in d.iteritems())
+                pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
+#                pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
                 handle.close()
                 gZipFile(dict_name)
 
