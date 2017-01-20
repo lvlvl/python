@@ -95,19 +95,25 @@ def decompress_file(temp_folder, output_fname):
             fieldnames = fieldnames_str[:-1].split(params.delimiter)
             reader = csv.DictReader(f,delimiter=params.delimiter,fieldnames=fieldnames)
             writer = csv.writer(fo,delimiter=params.delimiter)
-            for line in reader:
-#                print("Line: " +str(line))
-                result = []
-                for field in fieldnames:
-                    v = None
-                    if field in column_dictionary:
-#                        DEBUG
-#                        print("Field: " + str(field))
-#                        print("column_dictionary[field]: " + str(column_dictionary[field]))
-                        v = column_dictionary[field][int(line[field])]
-                        line[field] = v
-                    result.append(line[field])
-                writer.writerow(result)
+            try:
+                for line in reader:
+    #                print("Line: " +str(line))
+                    result = []
+                    for field in fieldnames:
+                        v = None
+                        if field in column_dictionary:
+    #                        DEBUG
+    #                        print("Field: " + str(field))
+    #                        print("column_dictionary[field]: " + str(column_dictionary[field]))
+                            v = column_dictionary[field][int(line[field])]
+                            line[field] = v
+                        result.append(line[field])
+                    writer.writerow(result)
+            except Exception as e:
+                print('Error: ')
+                print(e)
+                print('Line caused the error: ')
+                print(line)
     return(output_fname)
 
 params = argparser()
