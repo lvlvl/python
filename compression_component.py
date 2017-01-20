@@ -102,34 +102,41 @@ def transform_file(fname):
             dictionaries[column]={}
             counters[column]=0
 
-        for line in reader:
-            outrow = list()
-            for header in headers:
-    # fill dictionary
-                if header in compressed_columns:
-                    if line[header] not in dictionaries[header]:
-                        dictionaries[header][line[header]]=counters[header]
-                        counters[header] = counters[header]+1
-                    outrow.append(dictionaries[header][line[header]])
-                else:
-                    outrow.append(line[header])
-            writer.writerow(outrow)
-        output_file.close()
-        if params.verbose:
-            print('---------------------')
-            print('Dictionaries created: ')
-            print('---------------------')
-        for header in compressed_columns:
-            dict_name = params.temp_folder + fname + '.map.'+header
+
+        try:
+            for line in reader:
+                outrow = list()
+                for header in headers:
+        # fill dictionary
+                    if header in compressed_columns:
+                        if line[header] not in dictionaries[header]:
+                            dictionaries[header][line[header]]=counters[header]
+                            counters[header] = counters[header]+1
+                        outrow.append(dictionaries[header][line[header]])
+                    else:
+                        outrow.append(line[header])
+                writer.writerow(outrow)
+            output_file.close()
             if params.verbose:
-                print(dict_name)
-            with open(dict_name, 'wb') as handle:
-                d = dictionaries[header]
-                d = dict((v,k) for k,v in d.iteritems())
-                pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
-#                pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
-                handle.close()
-                gZipFile(dict_name)
+                print('---------------------')
+                print('Dictionaries created: ')
+                print('---------------------')
+            for header in compressed_columns:
+                dict_name = params.temp_folder + fname + '.map.'+header
+                if params.verbose:
+                    print(dict_name)
+                with open(dict_name, 'wb') as handle:
+                    d = dictionaries[header]
+                    d = dict((v,k) for k,v in d.iteritems())
+                    pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    #                pickle.dump(dictionaries[header], handle, protocol=pickle.HIGHEST_PROTOCOL)
+                    handle.close()
+                    gZipFile(dict_name)
+        except Exception as e:
+            print('Error: ')
+            print(e)
+            print('Line caused the error: ')
+            print(line)
 
 def make_tarfile(output_filename, source_dir):
     with tarfile.open(output_filename, "w:gz") as tar:
