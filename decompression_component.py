@@ -86,12 +86,12 @@ def decompress_file(temp_folder, output_fname):
 
     with open(output_fname,'w+') as fo:
         fieldnames_str = None
-        with open(header,'rb') as f:
+        with open(header,'rU') as f:
             for line in f:
     #                print(line)
                 fieldnames_str = line
                 fo.write(line)
-        with open(data_file,'rb') as f:
+        with open(data_file,'rU') as f:
             fieldnames = fieldnames_str[:-1].split(params.delimiter)
             reader = csv.DictReader(f,delimiter=params.delimiter,fieldnames=fieldnames)
             writer = csv.writer(fo,delimiter=params.delimiter)
@@ -178,6 +178,8 @@ while i < len(onlyfiles):
 #    Copy output csv file to output directory
     copyfile(a,params.output_folder+a)
     delete_temp_files(params.temp_folder)
-#    break
+#    DEBUG
+#    if i == 1:
+#        break
     i = i+1
 print("Done.")
