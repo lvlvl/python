@@ -86,7 +86,7 @@ def make_header(fname):
 
 def transform_file(fname):
     input_fname = params.input_folder + fname
-    with open(input_fname,'rb') as f:
+    with open(input_fname,'rU') as f:
         #Skip headers from original file
         h = int(params.skip)
         [f.readline() for x in xrange(h)]
