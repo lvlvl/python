@@ -41,21 +41,29 @@ def analyze_file(fname):
         h = int(params.skip)
         [f.readline() for x in xrange(h)]
         headers = reader.fieldnames
+
         #Define map
         unique_col_values = {}
+        sum_length = {}
         for i in headers:
             unique_col_values[i] = Set()
+            sum_length[i] = 0
         for row in itertools.islice(reader, int(params.analysis)):
 #            DEBUG
 #            print(row)
             for fieldname in headers:
                 value = row[fieldname]
+                sum_length[fieldname] = sum_length[fieldname] + len(str(value))
                 unique_col_values[fieldname].add(value)
         if params.verbose:
             print('Fieldnames in file:')
             print('-------------------')
             for fieldname in headers:
-                print('Fieldname: <' + fieldname + '> distinct count: ' + str(len(unique_col_values[fieldname]))+ '; cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) )
+                print('Fieldname: <' + fieldname + '>  distinct count: ' + str(len(unique_col_values[fieldname]))+ ';  cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) + ';  AVG length of the field: ' + str(sum_length[fieldname]/int(params.analysis) ))
+#                print('Fieldname: <' + fieldname + '>' )
+#                print('    Distinct count: ' + str(len(unique_col_values[fieldname])) + ';')
+#                print('    Cardinality %: ' + str(100*len(unique_col_values[fieldname])/int(params.analysis)) + ';')
+#                print('    AVG length of the field: ' + str(sum_length[fieldname]/int(params.analysis)) + ';')
             print('----------------------------------')
             print('Fieldnames with cardinality < ' + str(params.card_treshold) + ' %:')
             print('----------------------------------')
