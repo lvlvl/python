@@ -292,42 +292,45 @@ if params.compress:
 
     print('Processed files: ' + str(i))
     print('DONE.')
+else:
+    if params.decompress:
+        i=0
+        #Process files one by one from input directory
+        while i < len(onlyfiles):
+            print('Processing file: ')
+            print(onlyfiles[i])
+            print('----------------')
 
-if params.decompress:
-    i=0
-    #Process files one by one from input directory
-    while i < len(onlyfiles):
-        print('Processing file: ')
-        print(onlyfiles[i])
-        print('----------------')
-
-        untar_file(params.input_folder+onlyfiles[i], params.temp_folder)
-    #    untar_dir = params.temp_folder
-        os.chdir(params.temp_folder)
-        gz_files = []
-        for file in glob.glob("*.gz"):
-            gz_files.append(file,)
-    #        print file
-        print('')
-    #    DEBUG
-    #    print("GZ_files: " + str(gz_files))
-        j = 0
-        while j < len(gz_files):
-            if params.verbose:
-                print("GZ file found: " + gz_files[j])
-                print("Gunzip file path: " + params.temp_folder + gz_files[j])
-            gunzip_file(params.temp_folder + gz_files[j])
-            j = j+1
-        a = decompress_file(params.temp_folder, onlyfiles[i][:-4])
-        print('')
-        print("Output_fname: " + onlyfiles[i][:-4])
-        print('')
-    #    print("Result: " + a)
-    #    Copy output csv file to output directory
-        copyfile(a,params.output_folder+a)
-        delete_temp_files(params.temp_folder)
-    #    DEBUG
-    #    if i == 1:
-    #        break
-        i = i+1
-    print("Done.")
+            untar_file(params.input_folder+onlyfiles[i], params.temp_folder)
+        #    untar_dir = params.temp_folder
+            os.chdir(params.temp_folder)
+            gz_files = []
+            for file in glob.glob("*.gz"):
+                gz_files.append(file,)
+        #        print file
+            print('')
+        #    DEBUG
+        #    print("GZ_files: " + str(gz_files))
+            j = 0
+            while j < len(gz_files):
+                if params.verbose:
+                    print("GZ file found: " + gz_files[j])
+                    print("Gunzip file path: " + params.temp_folder + gz_files[j])
+                gunzip_file(params.temp_folder + gz_files[j])
+                j = j+1
+            a = decompress_file(params.temp_folder, onlyfiles[i][:-4])
+            print('')
+            print("Output_fname: " + onlyfiles[i][:-4])
+            print('')
+        #    print("Result: " + a)
+        #    Copy output csv file to output directory
+            copyfile(a,params.output_folder+a)
+            delete_temp_files(params.temp_folder)
+        #    DEBUG
+        #    if i == 1:
+        #        break
+            i = i+1
+        print("Done.")
+    else:
+        print("Method is not specified.")
+        print('Exiting script.')
